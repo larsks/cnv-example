@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: centos-8-http
+spec:
+  ports:
+  - port: 80
+  selector:
+    instance: example-centos-8
+  type: LoadBalancer

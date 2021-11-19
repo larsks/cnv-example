@@ -1,0 +1,78 @@
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  name: example-centos-8
+  labels:
+    instance: example-centos-8
+spec:
+  dataVolumeTemplates:
+    - metadata:
+        name: example-centos-8-rootdisk
+      spec:
+        pvc:
+          accessModes:
+            - ReadWriteMany
+          resources:
+            requests:
+              storage: 30Gi
+          storageClassName: ocs-external-storagecluster-ceph-rbd
+          volumeMode: Block
+        source:
+          pvc:
+            name: centos-8-stream
+            namespace: vm-images
+  running: true
+  template:
+    metadata:
+      labels:
+        instance: example-centos-8
+    spec:
+      accessCredentials:
+        - sshPublicKey:
+            source:
+              secret:
+                secretName: authorized-keys
+            propagationMethod:
+              configDrive: {}
+      domain:
+        cpu:
+          cores: 1
+          sockets: 1
+          threads: 1
+        devices:
+          disks:
+            - disk:
+                bus: virtio
+              name: cloudinitdisk
+            - bootOrder: 1
+              disk:
+                bus: virtio
+              name: rootdisk
+          interfaces:
+            - name: default
+              masquerade: {}
+          networkInterfaceMultiqueue: true
+        machine:
+          type: pc-q35-rhel8.4.0
+        resources:
+          limits:
+            memory: 4Gi
+          requests:
+            memory: 4Gi
+      evictionStrategy: LiveMigrate
+      hostname: example-centos-8
+      networks:
+        - name: default
+          pod: {}
+      terminationGracePeriodSeconds: 180
+      volumes:
+        - cloudInitConfigDrive:
+            userData: |
+              #!/bin/sh
+              yum -y upgrade
+              yum -y install httpd
+              systemctl enable --now httpd
+          name: cloudinitdisk
+        - dataVolume:
+            name: example-centos-8-rootdisk
+          name: rootdisk

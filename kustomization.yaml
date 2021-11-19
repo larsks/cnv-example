@@ -1,0 +1,16 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: lars-sandbox
+commonLabels:
+  app: vm-example
+
+resources:
+  - secret/authorized-keys.yaml
+  - vm/fedora-35.yaml
+  - vm/centos-8-stream.yaml
+  - service/fedora-35-ssh.yaml
+  - service/centos-8-ssh.yaml
+  - service/centos-8-http.yaml
+
+configurations:
+  - kustomizeconfig/vmi.yaml

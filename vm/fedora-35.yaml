@@ -1,0 +1,75 @@
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  name: example-fedora-35
+  labels:
+    instance: example-fedora-35
+spec:
+  dataVolumeTemplates:
+    - metadata:
+        name: example-fedora-35-rootdisk
+      spec:
+        pvc:
+          accessModes:
+            - ReadWriteMany
+          resources:
+            requests:
+              storage: 30Gi
+          storageClassName: ocs-external-storagecluster-ceph-rbd
+          volumeMode: Block
+        source:
+          pvc:
+            name: fedora-35
+            namespace: vm-images
+  running: true
+  template:
+    metadata:
+      labels:
+        instance: example-fedora-35
+    spec:
+      accessCredentials:
+        - sshPublicKey:
+            source:
+              secret:
+                secretName: authorized-keys
+            propagationMethod:
+              configDrive: {}
+      domain:
+        cpu:
+          cores: 1
+          sockets: 1
+          threads: 1
+        devices:
+          disks:
+            - disk:
+                bus: virtio
+              name: cloudinitdisk
+            - bootOrder: 1
+              disk:
+                bus: virtio
+              name: rootdisk
+          interfaces:
+            - name: default
+              masquerade: {}
+          networkInterfaceMultiqueue: true
+        machine:
+          type: pc-q35-rhel8.4.0
+        resources:
+          limits:
+            memory: 4Gi
+          requests:
+            memory: 4Gi
+      evictionStrategy: LiveMigrate
+      hostname: example-fedora-35
+      networks:
+        - name: default
+          pod: {}
+      terminationGracePeriodSeconds: 180
+      volumes:
+        - cloudInitConfigDrive:
+            userData: |
+              #cloud-config
+          name: cloudinitdisk
+        - dataVolume:
+            name: example-fedora-35-rootdisk
+          name: rootdisk
