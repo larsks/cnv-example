@@ -5,6 +5,9 @@ commonLabels:
   app: vm-example
 
 resources:
+  - namespace.yaml
+  - quota/limitrange.yaml
+  - quota/resourcequota.yaml
   - secret/authorized-keys.yaml
   - vm/fedora-35.yaml
   - vm/centos-8-stream.yaml
