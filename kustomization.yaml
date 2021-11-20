@@ -8,6 +8,7 @@ resources:
   - secret/authorized-keys.yaml
   - vm/fedora-35.yaml
   - vm/centos-8-stream.yaml
+  - vm/ubuntu-21.10.yaml
   - service/fedora-35-ssh.yaml
   - service/centos-8-ssh.yaml
   - service/centos-8-http.yaml
